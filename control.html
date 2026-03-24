@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+<style>
+body{background:black;color:white;text-align:center;font-family:Arial}
+button{font-size:22px;padding:12px;margin:8px}
+</style>
+</head>
+
+<body>
+
+<h2>🐸 CONTROL DIOS</h2>
+
+<input id="nombre" placeholder="Tu nombre">
+
+<textarea id="equipos" placeholder="Equipo 1
+Equipo 2"></textarea>
+
+<input id="meta" type="number" placeholder="Meta">
+
+<button onclick="login()">LOGIN</button>
+<button onclick="iniciar()">INICIAR</button>
+<button onclick="ronda()">+ RONDA</button>
+
+<div id="botones"></div>
+
+<script>
+const id=new URLSearchParams(location.search).get("id");
+
+let peer=new Peer();
+let conn;
+
+peer.on("open",()=>{conn=peer.connect(id);});
+
+function login(){
+  conn.send({tipo:"login",nombre:nombre.value});
+}
+
+function iniciar(){
+  let equiposArr=equipos.value.split("\n").map(e=>e.trim()).filter(e=>e);
+  let m=parseInt(meta.value);
+  conn.send({tipo:"iniciar",equipos:equiposArr,meta:m});
+  crearBotones(equiposArr);
+}
+
+function ronda(){conn.send({tipo:"ronda"});}
+
+function crearBotones(equipos){
+  botones.innerHTML="";
+  equipos.forEach((e,i)=>{
+    botones.innerHTML+=`
+      <h3>${e}</h3>
+      <button onclick="sumar(${i},10)">+10</button>
+      <button onclick="sumar(${i},20)">+20</button>
+      <button onclick="sumar(${i},50)">🐸 SAPO</button>
+      <button onclick="sumar(${i},100)">🔥</button>
+    `;
+  });
+}
+
+function sumar(i,v){
+  conn.send({tipo:"sumar",i,valor:v});
+}
+</script>
+
+</body>
+</html>
